@@ -47,7 +47,7 @@ static int topo_hiding_with_dlg(struct sip_msg *req,struct cell* t,struct dlg_ce
 static int topo_hiding_no_dlg(struct sip_msg *req,struct cell* t,int extra_flags);
 static int topo_dlg_replace_contact(struct sip_msg* msg, struct dlg_cell* dlg);
 static int topo_delete_vias(struct sip_msg* req);
-static int topo_delete_record_routes(struct sip_msg *req); 
+static int topo_delete_record_routes(struct sip_msg *req);
 static struct lump* delete_existing_contact(struct sip_msg *msg);
 static int topo_parse_passed_params(str *params,struct th_ct_params **lst);
 static void topo_dlg_onroute (struct dlg_cell* dlg, int type,
@@ -90,7 +90,7 @@ int topology_hiding(struct sip_msg *req,int extra_flags)
 	if (t == T_UNDEFINED)
 		t=NULL;
 
-	if (dlg_api.get_dlg) {
+	if (dlg_api.get_dlg && 0) {
 		/* we have dialog module loaded */
 		dlg = dlg_api.get_dlg();
 		if (!dlg) {
@@ -200,7 +200,7 @@ static int topo_parse_passed_params(str *params,struct th_ct_params **lst)
 	return 0;
 }
 
-static int topo_delete_record_routes(struct sip_msg *req) 
+static int topo_delete_record_routes(struct sip_msg *req)
 {
 	struct lump* lump, *crt, *prev_crt =0, *a, *foo;
 	struct hdr_field *it;
@@ -615,7 +615,7 @@ struct lump* restore_vias_from_req(struct sip_msg *req,struct sip_msg *rpl)
 			LM_ERR("rport_builder failed\n");
 			return NULL;
 		}
-		
+
 		/* take care of via1 + rest of VIA headers in h_via1 */
 		via_str.len = rport_len + received_len + req->h_via1->len;
 		LM_DBG("via len = %d\n",via_str.len);
@@ -672,9 +672,9 @@ struct lump* restore_vias_from_req(struct sip_msg *req,struct sip_msg *rpl)
 				req->via1->hdr.s+size,
 				bytes_before);
 				p += bytes_before;
-				
+
 				bytes_after = req->h_via1->len - size - req->via1->received->size -
-						bytes_before - 1; 
+						bytes_before - 1;
 				memcpy(p,
 				req->via1->received->start+req->via1->received->size,
 				bytes_after);
@@ -688,7 +688,7 @@ struct lump* restore_vias_from_req(struct sip_msg *req,struct sip_msg *rpl)
 					after = req->via1->rport->start+req->via1->rport->size;
 
 					bytes_after = req->h_via1->len - size - req->via1->rport->size -
-							bytes_before - 1 - bytes_between - req->via1->received->size  - 1; 
+							bytes_before - 1 - bytes_between - req->via1->received->size  - 1;
 					LM_DBG("1 both , before = %d, between = %d, after = %d\n",bytes_before,bytes_between,bytes_after);
 				} else {
 					bytes_before = req->via1->rport->start-req->via1->hdr.s-size-1;
@@ -698,24 +698,24 @@ struct lump* restore_vias_from_req(struct sip_msg *req,struct sip_msg *rpl)
 					after = req->via1->received->start+req->via1->received->size;
 
 					bytes_after = req->h_via1->len - size - req->via1->rport->size -
-							bytes_before - 1 - bytes_between - req->via1->received->size -1 ; 
+							bytes_before - 1 - bytes_between - req->via1->received->size -1 ;
 					LM_DBG("2 both , before = %d, between = %d, after = %d\n",bytes_before,bytes_between,bytes_after);
 				}
 
 				memcpy(p,
 				req->via1->hdr.s+size,
 				bytes_before);
-				p += bytes_before;	
+				p += bytes_before;
 
 				memcpy(p,
 				between,
 				bytes_between);
-				p += bytes_between;	
+				p += bytes_between;
 
 				memcpy(p,
 				after,
 				bytes_after);
-				p += bytes_after;	
+				p += bytes_after;
 			}
 		} else if (req->via1->rport) {
 			if (!req->via1->received) {
@@ -724,9 +724,9 @@ struct lump* restore_vias_from_req(struct sip_msg *req,struct sip_msg *rpl)
 				req->via1->hdr.s+size,
 				bytes_before);
 				p += bytes_before;
-				
+
 				bytes_after = req->h_via1->len - size - req->via1->rport->size -
-						bytes_before - 1; 
+						bytes_before - 1;
 				memcpy(p,
 				req->via1->rport->start+req->via1->rport->size,
 				bytes_after);
@@ -753,7 +753,7 @@ struct lump* restore_vias_from_req(struct sip_msg *req,struct sip_msg *rpl)
 			pkg_free(via_str.s);
 			goto err_free_rport;
 		}
-			
+
 		pkg_free(rport_buf);
 		pkg_free(received_buf);
 	} else {
@@ -855,7 +855,7 @@ static void _th_no_dlg_onreply(struct cell* t, int type, struct tmcb_params *par
 		if (route == NULL) {
 			LM_ERR("no more pkg memory\n");
 			pkg_free(rr_set.s);
-			return; 
+			return;
 		}
 
 		memcpy(route, RECORD_ROUTE, RECORD_ROUTE_LEN);
@@ -1214,7 +1214,7 @@ static int dlg_th_decode_callid(struct sip_msg *msg)
 	new_callid.len = word64decode((unsigned char *)(new_callid.s),
 			(unsigned char *)(msg->callid->body.s + topo_hiding_prefix.len),
 			msg->callid->body.len - topo_hiding_prefix.len);
-	
+
 	for (i=0;i<new_callid.len;i++)
 		new_callid.s[i] ^= topo_hiding_seed.s[i%topo_hiding_seed.len];
 
@@ -1415,7 +1415,7 @@ int topo_callid_post_raw(str *data, struct sip_msg* foo)
 	struct sip_msg msg;
 	struct dlg_cell *dlg;
 
-	if (dlg_api.get_dlg == NULL || (dlg = dlg_api.get_dlg()) == NULL || 
+	if (dlg_api.get_dlg == NULL || (dlg = dlg_api.get_dlg()) == NULL ||
 	!dlg_api.is_mod_flag_set(dlg,TOPOH_HIDE_CALLID)) {
 		/* dialog module not involved or not callid topo hiding
 		 - let is pass freely */
@@ -1542,14 +1542,14 @@ static char* build_encoded_contact_suffix(struct sip_msg* msg,int *suffix_len)
 	}
 
 	addr_len = (short)msg->rcv.bind_address->sock_str.len;
-	local_len += rr_len + ct_len + addr_len; 
+	local_len += rr_len + ct_len + addr_len;
 	enc_len = th_ct_enc_scheme == ENC_BASE64 ?
 		calc_word64_encode_len(local_len) : calc_word32_encode_len(local_len);
-	total_len = enc_len +  
-		1 /* ; */ + 
-		th_contact_encode_param.len + 
-		1 /* = */  + 
-		1 /* > */;	 
+	total_len = enc_len +
+		1 /* ; */ +
+		th_contact_encode_param.len +
+		1 /* = */  +
+		1 /* > */;
 
 	if (th_param_list) {
 		if ( parse_contact(msg->contact)<0 ||
@@ -1642,7 +1642,7 @@ static char* build_encoded_contact_suffix(struct sip_msg* msg,int *suffix_len)
 	else
 		word32encode((unsigned char*)s,(unsigned char *)suffix_plain,p-suffix_plain);
 	s = s+enc_len;
-	
+
 	if (th_param_list) {
 		for (el=th_param_list;el;el=el->next) {
 			/* we just iterate over the unknown params */
@@ -1698,7 +1698,7 @@ error:
 	return NULL;
 }
 
-static int topo_no_dlg_encode_contact(struct sip_msg *msg,int flags) 
+static int topo_no_dlg_encode_contact(struct sip_msg *msg,int flags)
 {
 	struct lump* lump;
 	char *prefix=NULL,*suffix=NULL,*ct_username=NULL;
@@ -1839,7 +1839,7 @@ static int topo_no_dlg_seq_handling(struct sip_msg *msg,str *info)
 		dec_len = word32decode((unsigned char *)dec_buf,
 			(unsigned char *)info->s,info->len);
 	for (i=0;i<dec_len;i++)
-		dec_buf[i] ^= topo_hiding_ct_encode_pw.s[i%topo_hiding_ct_encode_pw.len]; 
+		dec_buf[i] ^= topo_hiding_ct_encode_pw.s[i%topo_hiding_ct_encode_pw.len];
 
 	#define __extract_len_and_buf(_p, _len, _s) \
 		do { \
@@ -1968,7 +1968,7 @@ static int topo_no_dlg_seq_handling(struct sip_msg *msg,str *info)
 			while (rrp) {
 				i++;
 				rrp=rrp->next;
-			}	
+			}
 
 			/* If there are more routes other than the first, add them */
 			if (i > 1) {
