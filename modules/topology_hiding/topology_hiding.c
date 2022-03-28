@@ -167,7 +167,7 @@ static int mod_init(void)
 		}
 	}
 
-	if (register_pre_raw_processing_cb(topo_callid_pre_raw, 
+	if (register_pre_raw_processing_cb(topo_callid_pre_raw,
 	PRE_RAW_PROCESSING, 0/*no free*/) < 0) {
 		LM_ERR("failed to initialize pre raw support\n");
 		return -1;
@@ -244,7 +244,7 @@ int w_topology_hiding_match(struct sip_msg *req, void *seq_match_mode_val)
 	else
 		mm = (int)(long)seq_match_mode_val;
 
-	if (!dlg_api.match_dialog || dlg_api.match_dialog(req, mm) < 0)
+	if (1 || !dlg_api.match_dialog || dlg_api.match_dialog(req, mm) < 0)
 		return topology_hiding_match(req);
 	else
 		/* we went to the dlg module, which triggered us back, all good */
@@ -261,7 +261,7 @@ static int pv_topo_callee_callid(struct sip_msg *msg, pv_param_t *param, pv_valu
 	if(res==NULL)
 		return -1;
 
-	if ( (dlg=dlg_api.get_dlg())==NULL || 
+	if ( (dlg=dlg_api.get_dlg())==NULL ||
 	(!dlg_api.is_mod_flag_set(dlg,TOPOH_HIDE_CALLID))) {
 		return pv_get_null( msg, param, res);
 	}
